@@ -20,15 +20,17 @@ struct GameState {
     mapping(uint256 => Territory) territoryInfo; // Mapping from territory IDs to their respective Territory structs.
     uint256 currentTurn; // Index of the player whose turn it is.
     bool active; // Boolean to indicate if the game is currently active.
+    euint8[42] territoryOwners; // Array to store the owner of each territory
+    mapping(uint256 => mapping(address => ebool)) intel;
 }
 
 // Struct to represent a player in the game.
 struct Player {
     address playerAddress; // Address of the player.
+    euint8 index;
     euint32 totalTroops; // Total number of troops the player has.
-    euint32[2] ownedTerritories; // Bitmap to represent owned territories (using 2 euint32s to cover 42 territories).
     euint32 totalGold; // Total amount of gold the player has.
-    mapping(Cards => euint32) cardCount; // Mapping from card types to the count of each card the player owns.
+    mapping(euint32 => euint32) cardCount; // Mapping from card types to the count of each card the player owns.
 }
 
 // Struct to represent a territory in the game.

@@ -13,6 +13,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const INCO_RPC_URL = process.env.INCO_RPC_URL;
+const F1A4A = process.env.PRIVATE_KEY;
+const ROOTSTALKER_PRIVATE = process.env.ROOTSTALKER_PRIVATE;
 
 module.exports = {
   defaultNetwork: "inco",
@@ -29,8 +31,7 @@ module.exports = {
     },
     inco: {
       url: INCO_RPC_URL || "",
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts: [F1A4A, ROOTSTALKER_PRIVATE],
       chainId: 9090,
       timeout: 200000, // Increase the timeout value
     },

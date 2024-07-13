@@ -3,7 +3,8 @@ import { expect, assert } from "chai";
 //@ts-ignore
 import { ethers, deployments, userConfig } from "hardhat";
 import { AbiCoder, Contract, Signer } from "ethers";
-import { EncryptedERC20 } from "../typechain-types/contracts/EncryptedERC20";
+// import { EncryptedERC20 } from "../typechain-types/contracts/EncryptedERC20";
+import { RiskGame } from "../typechain-types/contracts/RiskGame";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/dist/src/signer-with-address";
 import { Deployment } from "hardhat-deploy/dist/types";
 import { createInstances } from "./instance";
@@ -16,8 +17,10 @@ describe("System test", function () {
   let accounts: SignerWithAddress[];
   let deployer: SignerWithAddress;
   let user: SignerWithAddress;
-  let EncryptedERC20: EncryptedERC20;
-  let instance: FhevmInstance;
+  let RiskGame: RiskGame;
+  let deployerInstance: FhevmInstance;
+  let userInstance: FhevmInstance;
+
   let signers: Signers;
 
   beforeEach(async () => {
@@ -26,44 +29,22 @@ describe("System test", function () {
     deployer = accounts[0];
     user = accounts[1];
     await deployments.fixture(["all"]);
-    const testContract = (await deployments.get(
-      "EncryptedERC20"
-    )) as Deployment;
+    const riskContract = (await deployments.get("RiskGame")) as Deployment;
 
-    EncryptedERC20 = (await ethers.getContractAt(
-      "EncryptedERC20",
-      testContract.address
-    )) as unknown as EncryptedERC20;
+    RiskGame = (await ethers.getContractAt(
+      "RiskGame",
+      riskContract.address
+    )) as unknown as RiskGame;
 
-    instance = await createInstances(
-      EncryptedERC20.target.toString(),
+    deployerInstance = await createInstances(
+      RiskGame.target.toString(),
       ethers,
       deployer
     );
-  });
-
-  it("all contracts are launched", async () => {
-    const encryptedAmount = instance.encrypt32(1000);
-    // const tx = await EncryptedERC20.mint(encryptedAmount);
-    const transaction = await createTransaction(
-      EncryptedERC20.mint,
-      encryptedAmount
+    userInstance = await createInstances(
+      RiskGame.target.toString(),
+      ethers,
+      deployer
     );
-    await transaction.wait();
-    const token = instance.getPublicKey(EncryptedERC20.target.toString()) || {
-      signature: "",
-      publicKey: "",
-    };
-    const encryptedBalance = await EncryptedERC20.balanceOf(
-      token.publicKey,
-      token.signature
-    );
-    // Decrypt the balance
-    const balance = instance.decrypt(
-      EncryptedERC20.target.toString(),
-      encryptedBalance
-    );
-    console.log(encryptedBalance, balance);
-    expect(balance).to.equal(1000);
   });
 });
