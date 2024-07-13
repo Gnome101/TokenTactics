@@ -1,127 +1,75 @@
-import {
-  time,
-  loadFixture,
-} from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
-import { expect } from "chai";
-import hre from "hardhat";
+import { expect, assert } from "chai";
+//@ts-ignore
+import { ethers, deployments, userConfig } from "hardhat";
+import { AbiCoder, Contract, Signer } from "ethers";
+import { EncryptedERC20 } from "../typechain-types/contracts/EncryptedERC20";
+import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/dist/src/signer-with-address";
+import { Deployment } from "hardhat-deploy/dist/types";
+import { createInstances } from "./instance";
+import { FhevmInstances } from "./types";
+import { Signers, getSigners } from "./signers";
+import { FhevmInstance } from "fhevmjs";
+import { createTransaction } from "./utils";
+import("tfhe/tfhe");
+describe("System test", function () {
+  let accounts: SignerWithAddress[];
+  let deployer: SignerWithAddress;
+  let user: SignerWithAddress;
+  let EncryptedERC20: EncryptedERC20;
+  let instance: FhevmInstance;
+  let signers: Signers;
 
-describe("Lock", function () {
-  // We define a fixture to reuse the same setup in every test.
-  // We use loadFixture to run this setup once, snapshot that state,
-  // and reset Hardhat Network to that snapshot in every test.
-  async function deployOneYearLockFixture() {
-    const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-    const ONE_GWEI = 1_000_000_000;
+  beforeEach(async () => {
+    accounts = (await ethers.getSigners()) as unknown as SignerWithAddress[]; // could also do with getNamedAccounts
+    signers = await getSigners(ethers);
+    deployer = accounts[0];
+    user = accounts[1];
+    await deployments.fixture(["all"]);
+    const testContract = (await deployments.get(
+      "EncryptedERC20"
+    )) as Deployment;
 
-    const lockedAmount = ONE_GWEI;
-    const unlockTime = (await time.latest()) + ONE_YEAR_IN_SECS;
+    EncryptedERC20 = (await ethers.getContractAt(
+      "EncryptedERC20",
+      testContract.address
+    )) as unknown as EncryptedERC20;
 
-    // Contracts are deployed using the first signer/account by default
-    const [owner, otherAccount] = await hre.ethers.getSigners();
-
-    const Lock = await hre.ethers.getContractFactory("Lock");
-    const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
-
-    return { lock, unlockTime, lockedAmount, owner, otherAccount };
-  }
-
-  describe("Deployment", function () {
-    it("Should set the right unlockTime", async function () {
-      const { lock, unlockTime } = await loadFixture(deployOneYearLockFixture);
-
-      expect(await lock.unlockTime()).to.equal(unlockTime);
-    });
-
-    it("Should set the right owner", async function () {
-      const { lock, owner } = await loadFixture(deployOneYearLockFixture);
-
-      expect(await lock.owner()).to.equal(owner.address);
-    });
-
-    it("Should receive and store the funds to lock", async function () {
-      const { lock, lockedAmount } = await loadFixture(
-        deployOneYearLockFixture
-      );
-
-      expect(await hre.ethers.provider.getBalance(lock.target)).to.equal(
-        lockedAmount
-      );
-    });
-
-    it("Should fail if the unlockTime is not in the future", async function () {
-      // We don't use the fixture here because we want a different deployment
-      const latestTime = await time.latest();
-      const Lock = await hre.ethers.getContractFactory("Lock");
-      await expect(Lock.deploy(latestTime, { value: 1 })).to.be.revertedWith(
-        "Unlock time should be in the future"
-      );
-    });
+    instance = await createInstances(
+      EncryptedERC20.target.toString(),
+      ethers,
+      deployer
+    );
   });
 
-  describe("Withdrawals", function () {
-    describe("Validations", function () {
-      it("Should revert with the right error if called too soon", async function () {
-        const { lock } = await loadFixture(deployOneYearLockFixture);
+  it("all contracts are launched", async () => {
+    const encryptedAmount = instance.encrypt32(1000);
+    // const tx = await EncryptedERC20.mint(encryptedAmount);
 
-        await expect(lock.withdraw()).to.be.revertedWith(
-          "You can't withdraw yet"
-        );
-      });
+    const transaction = await createTransaction(
+      EncryptedERC20.mint,
+      encryptedAmount
+    );
+    await transaction.wait();
+    console.log(EncryptedERC20.target);
+    const token = instance.getTokenSignature(
+      EncryptedERC20.target.toString()
+    ) || {
+      signature: "",
+      publicKey: "",
+    };
 
-      it("Should revert with the right error if called from another account", async function () {
-        const { lock, unlockTime, otherAccount } = await loadFixture(
-          deployOneYearLockFixture
-        );
+    const encryptedBalance = await EncryptedERC20.balanceOf(
+      token.publicKey,
+      token.signature
+    );
 
-        // We can increase the time in Hardhat Network
-        await time.increaseTo(unlockTime);
-
-        // We use lock.connect() to send a transaction from another account
-        await expect(lock.connect(otherAccount).withdraw()).to.be.revertedWith(
-          "You aren't the owner"
-        );
-      });
-
-      it("Shouldn't fail if the unlockTime has arrived and the owner calls it", async function () {
-        const { lock, unlockTime } = await loadFixture(
-          deployOneYearLockFixture
-        );
-
-        // Transactions are sent using the first signer by default
-        await time.increaseTo(unlockTime);
-
-        await expect(lock.withdraw()).not.to.be.reverted;
-      });
-    });
-
-    describe("Events", function () {
-      it("Should emit an event on withdrawals", async function () {
-        const { lock, unlockTime, lockedAmount } = await loadFixture(
-          deployOneYearLockFixture
-        );
-
-        await time.increaseTo(unlockTime);
-
-        await expect(lock.withdraw())
-          .to.emit(lock, "Withdrawal")
-          .withArgs(lockedAmount, anyValue); // We accept any value as `when` arg
-      });
-    });
-
-    describe("Transfers", function () {
-      it("Should transfer the funds to the owner", async function () {
-        const { lock, unlockTime, lockedAmount, owner } = await loadFixture(
-          deployOneYearLockFixture
-        );
-
-        await time.increaseTo(unlockTime);
-
-        await expect(lock.withdraw()).to.changeEtherBalances(
-          [owner, lock],
-          [lockedAmount, -lockedAmount]
-        );
-      });
-    });
+    // Decrypt the balance
+    const balance = instance.decrypt(
+      EncryptedERC20.target.toString(),
+      encryptedBalance
+    );
+    console.log(encryptedBalance);
+    expect(balance).to.equal(1000);
   });
 });
