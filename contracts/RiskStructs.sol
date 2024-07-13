@@ -17,11 +17,11 @@ struct GameState {
     uint256 gameID; // Unique identifier for the game.
     address[] players; // List of player addresses in the game.
     mapping(address => Player) playerInfo; // Mapping from player addresses to their respective Player structs.
-    mapping(uint256 => Territory) territoryInfo; // Mapping from territory IDs to their respective Territory structs.
+    mapping(euint32 => Territory) territoryInfo; // Mapping from territory IDs to their respective Territory structs.
     uint256 currentTurn; // Index of the player whose turn it is.
     bool active; // Boolean to indicate if the game is currently active.
-    mapping(uint256 => euint32) territoryOwners; // Array to store the owner of each territory
-    mapping(uint256 => mapping(address => ebool)) intel;
+    mapping(euint32 => euint32) territoryOwners; // Array to store the owner of each territory
+    mapping(euint32 => mapping(address => ebool)) intel;
 }
 
 // Struct to represent a player in the game.

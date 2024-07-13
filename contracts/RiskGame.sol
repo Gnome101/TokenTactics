@@ -8,9 +8,9 @@ import "./RiskStructs.sol";
 import "hardhat/console.sol";
 
 event Garrison(uint256 gameID);
-event Artillery(uint256 gameID, uint256 territoryID);
-event Bamba(uint256 gameID, uint256 territoryID);
-event Intel(uint256 gameID, uint256 territoryID);
+event Artillery(uint256 gameID, euint32 territoryID);
+event Bamba(uint256 gameID, euint32 territoryID);
+event Intel(uint256 gameID, euint32 territoryID);
 
 event GameStarted(uint256 gameID);
 event TurnEnded(uint256 gameID, address player);
@@ -25,8 +25,57 @@ contract RiskGame is EIP712WithModifier {
     uint256 constant goldStart = 10;
     address public contractOwner;
 
+    mapping(euint32 => euint32[]) private neighborsMap;
+ function toEuint32Array(uint256[6] memory input) internal pure returns (euint32[] memory output) {
+        for (uint256 i = 0; i < 6; i++) {
+            output[i] = input[i].asEuint32();
+        }
+    }
     constructor() EIP712WithModifier("Authorization token", "1") {
         contractOwner = msg.sender;
+        neighborsMap[euint32.wrap(0)] = toEuint32Array([uint256(2), 3, 26, 0, 0, 0]);
+        neighborsMap[euint32.wrap(1)] = toEuint32Array([uint256(1), 3, 4, 13, 0, 0]);
+        neighborsMap[euint32.wrap(2)] = toEuint32Array([uint256(1), 2, 4, 6, 0, 0]);
+        neighborsMap[euint32.wrap(3)] = toEuint32Array([uint256(2), 3, 6, 7, 5, 13]);
+        neighborsMap[euint32.wrap(4)] = toEuint32Array([uint256(4), 7, 13, 0, 0, 0]);
+        neighborsMap[euint32.wrap(5)] = toEuint32Array([uint256(3), 4, 7, 8, 0, 0]);
+        neighborsMap[euint32.wrap(6)] = toEuint32Array([uint256(3), 4, 5, 6, 8, 0]);
+        neighborsMap[euint32.wrap(7)] = toEuint32Array([uint256(6), 7, 9, 0, 0, 0]);
+        neighborsMap[euint32.wrap(8)] = toEuint32Array([uint256(8), 10, 11, 0, 0, 0]);
+        neighborsMap[euint32.wrap(9)] = toEuint32Array([uint256(9), 11, 12, 0, 0, 0]);
+        neighborsMap[euint32.wrap(10)] = toEuint32Array([uint256(9), 10, 12, 0, 0, 0]);
+        neighborsMap[euint32.wrap(11)] = toEuint32Array([uint256(10), 11, 0, 0, 0, 0]);
+        neighborsMap[euint32.wrap(12)] = toEuint32Array([uint256(2), 4, 5, 14, 0, 0]);
+        neighborsMap[euint32.wrap(13)] = toEuint32Array([uint256(13), 17, 15, 0, 0, 0]);
+        neighborsMap[euint32.wrap(14)] = toEuint32Array([uint256(14), 17, 19, 16, 0, 0]);
+        neighborsMap[euint32.wrap(15)] = toEuint32Array([uint256(15), 19, 20, 21, 22, 23]);
+        neighborsMap[euint32.wrap(16)] = toEuint32Array([uint256(15), 19, 18, 0, 0, 0]);
+        neighborsMap[euint32.wrap(17)] = toEuint32Array([uint256(17), 19, 20, 33, 0, 0]);
+        neighborsMap[euint32.wrap(18)] = toEuint32Array([uint256(15), 17, 18, 20, 16, 0]);
+        neighborsMap[euint32.wrap(19)] = toEuint32Array([uint256(18), 19, 16, 21, 34, 0]);
+        neighborsMap[euint32.wrap(20)] = toEuint32Array([uint256(16), 20, 34, 29, 0, 0]);
+        neighborsMap[euint32.wrap(21)] = toEuint32Array([uint256(16), 23, 30, 21, 29, 0]);
+        neighborsMap[euint32.wrap(22)] = toEuint32Array([uint256(16), 22, 24, 0, 0, 0]);
+        neighborsMap[euint32.wrap(23)] = toEuint32Array([uint256(23), 30, 27, 28, 25, 0]);
+        neighborsMap[euint32.wrap(24)] = toEuint32Array([uint256(24), 27, 26, 0, 0, 0]);
+        neighborsMap[euint32.wrap(25)] = toEuint32Array([uint256(25), 1, 31, 0, 0, 0]);
+        neighborsMap[euint32.wrap(26)] = toEuint32Array([uint256(24), 26, 28, 25, 0, 0]);
+        neighborsMap[euint32.wrap(27)] = toEuint32Array([uint256(30), 31, 0, 0, 0, 0]);
+        neighborsMap[euint32.wrap(28)] = toEuint32Array([uint256(21), 22, 30, 40, 0, 0]);
+        neighborsMap[euint32.wrap(29)] = toEuint32Array([uint256(22), 28, 29, 40, 0, 0]);
+        neighborsMap[euint32.wrap(30)] = toEuint32Array([uint256(26), 28, 0, 0, 0, 0]);
+        neighborsMap[euint32.wrap(31)] = toEuint32Array([uint256(18), 33, 34, 35, 0, 0]);
+        neighborsMap[euint32.wrap(32)] = toEuint32Array([uint256(20), 32, 34, 21, 0, 0]);
+        neighborsMap[euint32.wrap(33)] = toEuint32Array([uint256(21), 32, 33, 35, 37, 0]);
+        neighborsMap[euint32.wrap(34)] = toEuint32Array([uint256(32), 34, 36, 0, 0, 0]);
+        neighborsMap[euint32.wrap(35)] = toEuint32Array([uint256(35), 34, 37, 0, 0, 0]);
+        neighborsMap[euint32.wrap(36)] = toEuint32Array([uint256(34), 36, 0, 0, 0, 0]);
+        neighborsMap[euint32.wrap(37)] = toEuint32Array([uint256(29), 30, 39, 0, 0, 0]);
+        neighborsMap[euint32.wrap(38)] = toEuint32Array([uint256(38), 40, 41, 0, 0, 0]);
+        neighborsMap[euint32.wrap(39)] = toEuint32Array([uint256(39), 41, 42, 0, 0, 0]);
+        neighborsMap[euint32.wrap(40)] = toEuint32Array([uint256(39), 40, 42, 0, 0, 0]);
+        neighborsMap[euint32.wrap(41)] = toEuint32Array([uint256(41), 40, 0, 0, 0, 0]);
+
     }
 
     function createGame() public {
@@ -125,7 +174,7 @@ contract RiskGame is EIP712WithModifier {
         // Ensure randIndex is within bounds
         require(randIndex < counter, "Random index out of bounds");
 
-        uint256 selectedTerritoryID = unassignedTerritories[randIndex];
+        euint32 selectedTerritoryID = unassignedTerritories[randIndex].asEuint32();
 
         // Assign the territory to the player and place one troop there
         activeGame.territoryInfo[selectedTerritoryID].troopsHere = TFHE.asEuint32(1);
@@ -172,27 +221,67 @@ contract RiskGame is EIP712WithModifier {
 
     function moveTroops(
         uint256 gameID,
-        uint8 from,
-        uint8 to,
-        euint32 amount
+        bytes calldata fromData,
+        bytes calldata toData,
+        bytes calldata amountData
+    ) public {
+        GameState storage game = games[gameID];
+        euint32 from = TFHE.asEuint32(fromData);
+        euint32 to = TFHE.asEuint32(toData);
+
+        Territory storage source = game.territoryInfo[from];
+
+        TFHE.optReq(TFHE.gt(1, source.troopsHere));
+         euint32 amount = TFHE.asEuint32(amountData);
+ 
+       preformChecks(false,game,amount,TFHE.sub(source.troopsHere, 1),from,to);
+
+       removeTroopsHere(source, amount);
+       addTroopsHere(game.territoryInfo[to], amount);
+
+    }
+function preformChecks(bool attack,GameState storage game,euint32 amount, euint32 troopsHereAfter,euint32 from,euint32 to)internal view {
+            Player storage player = game.playerInfo[msg.sender];
+
+        TFHE.optReq(TFHE.le(amount, troopsHereAfter)); //"Not enough troops"
+        TFHE.optReq(isNeighbor( from, to));// "Territories not neighbors"
+        TFHE.optReq(playerOwnsTerritory(player, from, game.gameID)); //Player must own territory
+        if(attack){
+        TFHE.optReq(TFHE.not(playerOwnsTerritory(player, to, game.gameID)));//Player must not own other territory
+        } else {
+       TFHE.optReq(TFHE.or(playerOwnsTerritory(player, to, game.gameID),TFHE.asEbool(TFHE.isInitialized(game.territoryInfo[to].troopsHere))));//Player must not own other territory
+
+        }
+
+      
+}
+      function attackTroops(
+        uint256 gameID,
+        bytes calldata fromData,
+        bytes calldata toData,
+        bytes calldata amountData
     ) public {
         GameState storage game = games[gameID];
         Player storage player = game.playerInfo[msg.sender];
+        euint32 from = TFHE.asEuint32(fromData);
+        euint32 to = TFHE.asEuint32(toData);
+
         Territory storage source = game.territoryInfo[from];
-        Territory storage target = game.territoryInfo[to];
+
         TFHE.optReq(TFHE.gt(1, source.troopsHere));
-        TFHE.optReq(TFHE.le(amount, TFHE.sub(source.troopsHere, 1))); //"Not enough troops"
-        require(isNeighbor(gameID, from, to), "Territories not neighbors");
-        TFHE.optReq(playerOwnsTerritory(player, from, gameID)); //Player must own territory
+         euint32 amount = TFHE.asEuint32(amountData);
 
-        if (TFHE.decrypt(playerOwnsTerritory(player, to, gameID))) {
-            removeTroopsHere(source, amount);
-            addTroopsHere(target, amount);
-        } else {
-            resolveBattle(game, from, to, amount);
-        }
+              preformChecks(true,game,amount,TFHE.sub(source.troopsHere, 1),from,to);
+
+
+        require(TFHE.isInitialized(game.territoryInfo[to].troopsHere), "Must be enemy player");        
+    
+        resolveBattle(game, from, to, amount);
+
     }
+    function settleMovement() internal {
 
+    }
     function addTroopsHere(Territory storage target, euint32 amount) internal {
         target.troopsHere = TFHE.add(target.troopsHere, amount);
     }
@@ -219,12 +308,12 @@ contract RiskGame is EIP712WithModifier {
     function useCard(
         uint256 gameID,
         uint32 cardToUse,
-        uint256 territoryID
+bytes calldata territoryData
     ) public {
         GameState storage game = games[gameID];
         Player storage player = game.playerInfo[msg.sender];
         euint32 cardType = TFHE.asEuint32(cardToUse);
-
+        euint32 territoryID = TFHE.asEuint32(territoryData);
         TFHE.optReq(TFHE.ge(7, player.cardCount[cardType])); //Player needs 7 cards
         Territory storage territory = game.territoryInfo[territoryID];
 
@@ -278,7 +367,7 @@ contract RiskGame is EIP712WithModifier {
         // Calculate the amount of gold to give based on the number of territories owned
         euint32 goldToGive = TFHE.asEuint32(0);
         for (uint256 i = 0; i < 42; i++) {
-            ebool owns = TFHE.eq(game.territoryOwners[i], currentPlayer.index);
+            ebool owns = TFHE.eq(game.territoryOwners[TFHE.asEuint32(i)], currentPlayer.index);
             goldToGive = TFHE.add(
                 goldToGive,
                 TFHE.cmux(owns, TFHE.asEuint32(1), TFHE.asEuint32(0))
@@ -302,7 +391,7 @@ contract RiskGame is EIP712WithModifier {
 
     function placeTroops(
         uint256 gameID,
-        uint256 territoryID,
+        euint32 territoryID,
         euint32 amount
     ) public {
         GameState storage game = games[gameID];
@@ -323,27 +412,25 @@ contract RiskGame is EIP712WithModifier {
             amount
         );
     }
-
+    function getNeighbors(euint32 index) internal view returns(euint32[] memory){
+        return neighborsMap[index];
+    }
     function isNeighbor(
-        uint256 gameID,
-        uint8 to,
-        uint8 from
-    ) internal view returns (bool) {
-        GameState storage game = games[gameID];
-        Territory storage fromTerritory = game.territoryInfo[from];
-         uint8[] memory neighbors = getNeighbors(fromTerritory.territoryID);
+        euint32 to,
+        euint32 from
+    ) internal view  returns (ebool res) {
+        euint32[] memory neighbors = getNeighbors(from);
+        res = TFHE.asEbool(false);
         for (uint256 i = 0; i < neighbors.length; i++) {
-            if (neighbors[i] == to) {
-                return true;
-            }
+            res =  TFHE.or(res,TFHE.eq(neighbors[i],to));           
         }
 
-        return false;
+        return res;
     }
 
     function playerOwnsTerritory(
         Player storage player,
-        uint256 territoryID,
+        euint32 territoryID,
         uint256 gameID
     ) internal view returns (ebool) {
         GameState storage game = games[gameID];
@@ -352,8 +439,8 @@ contract RiskGame is EIP712WithModifier {
 
     function resolveBattle(
         GameState storage game,
-        uint256 from,
-        uint256 to,
+        euint32 from,
+        euint32 to,
         euint32 amount
     ) internal {
         Player storage attacker = game.playerInfo[
@@ -410,7 +497,7 @@ contract RiskGame is EIP712WithModifier {
         uint256[] memory territoryCounts = new uint256[](game.players.length);
 
         for (uint256 i = 0; i < 42; i++) {
-            euint32 ownerIndex = game.territoryOwners[i];
+            euint32 ownerIndex = game.territoryOwners[i.asEuint32()];
             territoryCounts[TFHE.decrypt(ownerIndex)]++;
         }
 
@@ -460,22 +547,14 @@ contract RiskGame is EIP712WithModifier {
     // Check if the player owns the territory
     // Check if the player owns any neighboring territories
     // Determine if the player can view the territory
-    ebool canLook = canPlayerLook(game,territoryID,game.playerInfo[msg.sender]);
+    ebool canLook = canPlayerLook(game,territoryID.asEuint32(),game.playerInfo[msg.sender]);
 
     // Get the encrypted information
-    (troopsHere, owner) = getTerritoryInfo(game, territoryID, canLook, publicKey);
+    (troopsHere, owner) = getTerritoryInfo(game, territoryID.asEuint32(), canLook, publicKey);
 
 }
-function checkAssignments(uint256 gameID) public view returns (uint32[10] memory) {
-    GameState storage activeGame = games[gameID];
-    uint32[10] memory assignments;
-    for (uint256 i = 0; i < 10; i++) {
-        require(TFHE.isInitialized(activeGame.territoryOwners[i]), "Must be real");
-        assignments[i] = TFHE.decrypt(activeGame.territoryOwners[i]);
-    }
-    return assignments;
-}
-function canPlayerLook(GameState storage game,uint256 territoryID,Player storage player) internal view returns(ebool){
+
+function canPlayerLook(GameState storage game,euint32 territoryID,Player storage player) internal view returns(ebool){
             require(TFHE.isInitialized(player.index), "Must be real");
         return TFHE.or(game.intel[territoryID][player.playerAddress],TFHE.or(TFHE.eq(game.territoryOwners[territoryID], player.index),checkNeighborOwnership(game,player,territoryID)));
 
@@ -483,24 +562,17 @@ function canPlayerLook(GameState storage game,uint256 territoryID,Player storage
 function checkNeighborOwnership(
     GameState storage game,
     Player storage player,
-    uint256 territoryID
+    euint32 territoryID
 ) internal view returns (ebool) {
-    Territory storage territory = game.territoryInfo[territoryID];
-    euint32 neighBorOwnedCount = TFHE.asEuint32(0);
-    uint8[] memory neighbors = getNeighbors(territory.territoryID);
-
-    for (uint8 i = 0; i < neighbors.length; i++) {
-        neighbors[i];
-        euint32 neighborOwnerIndex = TFHE.asEuint32(0);//game.territoryOwners[neighbors[i]];
-        ebool userOwns = TFHE.eq(neighborOwnerIndex, player.index);
-        neighBorOwnedCount = TFHE.cmux(
-            userOwns,
-            TFHE.add(neighBorOwnedCount, 1),
-            neighBorOwnedCount
-        );
+    ebool canLook = TFHE.asEbool(false);
+    euint32[] memory neighbors = getNeighbors(territoryID);
+    require(neighbors.length > 1, "a");
+    for (uint256 i = 0; i < neighbors.length; i++) {
+        if(!TFHE.isInitialized(game.territoryOwners[neighbors[i]]) ) continue;
+     canLook = TFHE.or(canLook,TFHE.eq(game.territoryOwners[neighbors[i]], player.index));
     }
 
-    return TFHE.gt(neighBorOwnedCount, 0);
+    return canLook;
 }  
 function getPlayer(uint256 gameID, uint256 index) public view returns(address) {
     GameState storage game = games[gameID];
@@ -509,7 +581,7 @@ function getPlayer(uint256 gameID, uint256 index) public view returns(address) {
 
 function getTerritoryInfo(
     GameState storage game,
-    uint256 territoryID,
+    euint32 territoryID,
     ebool canLook,
     bytes32 publicKey
 ) internal view returns (bytes memory troopsHere, bytes memory owner) {
@@ -528,66 +600,7 @@ function getTerritoryInfo(
     owner = TFHE.reencrypt(ownerIndexEncryp, publicKey, 99);
 
     return (troopsHere, owner);
-}
-    function getNeighbors(uint index) public pure returns (uint8[] memory) {
-        if (index == 0) return toArray([uint8(2), 3, 26, 0, 0, 0]);
-        else if (index == 1) return toArray([uint8(1), 3, 4, 13, 0, 0]);
-        else if (index == 2) return toArray([uint8(1), 2, 4, 6, 0, 0]);
-        else if (index == 3) return toArray([uint8(2), 3, 6, 7, 5, 13]);
-        else if (index == 4) return toArray([uint8(4), 7, 13, 0, 0, 0]);
-        else if (index == 5) return toArray([uint8(3), 4, 7, 8, 0, 0]);
-        else if (index == 6) return toArray([uint8(3), 4, 5, 6, 8, 0]);
-        else if (index == 7) return toArray([uint8(6), 7, 9, 0, 0, 0]);
-        else if (index == 8) return toArray([uint8(8), 10, 11, 0, 0, 0]);
-        else if (index == 9) return toArray([uint8(9), 11, 12, 0, 0, 0]);
-        else if (index == 10) return toArray([uint8(9), 10, 12, 0, 0, 0]);
-        else if (index == 11) return toArray([uint8(10), 11, 0, 0, 0, 0]);
-        else if (index == 12) return toArray([uint8(2), 4, 5, 14, 0, 0]);
-        else if (index == 13) return toArray([uint8(13), 17, 15, 0, 0, 0]);
-        else if (index == 14) return toArray([uint8(14), 17, 19, 16, 0, 0]);
-        else if (index == 15) return toArray([uint8(15), 19, 20, 21, 22, 23]);
-        else if (index == 16) return toArray([uint8(15), 19, 18, 0, 0, 0]);
-        else if (index == 17) return toArray([uint8(17), 19, 20, 33, 0, 0]);
-        else if (index == 18) return toArray([uint8(15), 17, 18, 20, 16, 0]);
-        else if (index == 19) return toArray([uint8(18), 19, 16, 21, 34, 0]);
-        else if (index == 20) return toArray([uint8(16), 20, 34, 29, 0, 0]);
-        else if (index == 21) return toArray([uint8(16), 23, 30, 21, 29, 0]);
-        else if (index == 22) return toArray([uint8(16), 22, 24, 0, 0, 0]);
-        else if (index == 23) return toArray([uint8(23), 30, 27, 28, 25, 0]);
-        else if (index == 24) return toArray([uint8(24), 27, 26, 0, 0, 0]);
-        else if (index == 25) return toArray([uint8(25), 1, 31, 0, 0, 0]);
-        else if (index == 26) return toArray([uint8(24), 26, 28, 25, 0, 0]);
-        else if (index == 27) return toArray([uint8(30), 31, 0, 0, 0, 0]);
-        else if (index == 28) return toArray([uint8(21), 22, 30, 40, 0, 0]);
-        else if (index == 29) return toArray([uint8(22), 28, 29, 40, 0, 0]);
-        else if (index == 30) return toArray([uint8(26), 28, 0, 0, 0, 0]);
-        else if (index == 31) return toArray([uint8(18), 33, 34, 35, 0, 0]);
-        else if (index == 32) return toArray([uint8(20), 32, 34, 21, 0, 0]);
-        else if (index == 33) return toArray([uint8(21), 32, 33, 35, 37, 0]);
-        else if (index == 34) return toArray([uint8(32), 34, 36, 0, 0, 0]);
-        else if (index == 35) return toArray([uint8(35), 34, 37, 0, 0, 0]);
-        else if (index == 36) return toArray([uint8(34), 36, 0, 0, 0, 0]);
-        else if (index == 37) return toArray([uint8(29), 30, 39, 0, 0, 0]);
-        else if (index == 38) return toArray([uint8(38), 40, 41, 0, 0, 0]);
-        else if (index == 39) return toArray([uint8(39), 41, 42, 0, 0, 0]);
-        else if (index == 40) return toArray([uint8(39), 40, 42, 0, 0, 0]);
-        else if (index == 41) return toArray([uint8(41), 40, 0, 0, 0, 0]);
-        revert();
-    }
+} 
+   
 
-    function toArray(uint8[6] memory input) internal pure returns (uint8[] memory) {
-        uint8 count = 0;
-        for (uint8 i = 0; i < 6; i++) {
-            if (input[i] != 0) count++;
-        }
-        uint8[] memory output = new uint8[](count);
-        uint8 j = 0;
-        for (uint8 i = 0; i < 6; i++) {
-            if (input[i] != 0) {
-                output[j] = input[i];
-                j++;
-            }
-        }
-        return output;
-    }
 }

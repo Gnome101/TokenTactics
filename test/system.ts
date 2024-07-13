@@ -44,16 +44,16 @@ describe("System test", function () {
       user
     )) as unknown as RiskGame;
 
-    deployerInstance = await createInstances(
-      deployerRisk.target.toString(),
-      ethers,
-      deployer
-    );
-    userInstance = await createInstances(
-      userRisk.target.toString(),
-      ethers,
-      deployer
-    );
+    // deployerInstance = await createInstances(
+    //   deployerRisk.target.toString(),
+    //   ethers,
+    //   deployer
+    // );
+    // userInstance = await createInstances(
+    //   userRisk.target.toString(),
+    //   ethers,
+    //   deployer
+    // );
   });
 
   it("contract was deployed", async () => {
@@ -65,14 +65,14 @@ describe("System test", function () {
     // Create a game
     const gameID = await deployerRisk.gameCounter();
     const tx1 = await deployerRisk.createGame();
-    // Join the game
+    // // Join the game
     await tx1.wait();
-    const tx2 = await userRisk.joinGame(gameID);
-    await tx2.wait();
+    // const tx2 = await userRisk.joinGame(gameID);
+    // await tx2.wait();
 
-    // Start the game
-    const tx3 = await deployerRisk.startGame(gameID);
-    await tx3.wait();
+    // // Start the game
+    // const tx3 = await deployerRisk.startGame(gameID);
+    // await tx3.wait();
     // const token = deployerInstance.getPublicKey(
     //   deployerRisk.target.toString()
     // ) || {
@@ -103,14 +103,53 @@ describe("System test", function () {
     // console.log("balacnce", balance.toString());
     // assert.equal(balance.toString(), "10");
     // assert.equal(totalSoldiers.toString(), "5");
-    // const r = await deployerRisk.returnFirst(gameID);
-    // console.log(r);
-    const result = await returnTerritories(
-      deployerInstance,
-      deployerRisk,
-      gameID
-    );
-    console.log(result);
+
+    // const result = (await returnTerritories(
+    //   deployerInstance,
+    //   deployerRisk,
+    //   gameID
+    // )) as unknown as Territory[];
+    // console.log(result);
+    // if (result == undefined) throw "AA";
+    // // Move troops from one territory to another
+    // //@ts-ignore
+    // const fromTerritory = result.find((t) => t.ours).id;
+    // //@ts-ignore
+    // const toTerritory = result.find((t) => t.ours && t.id !== fromTerritory).id;
+
+    // const moveTx = await deployerRisk.moveTroops(
+    //   gameID,
+    //   fromTerritory,
+    //   toTerritory,
+    //   deployerInstance.encrypt(1)
+    // );
+    // await moveTx.wait();
+
+    // const updatedTerritories = await returnTerritories(
+    //   deployerInstance,
+    //   deployerRisk,
+    //   gameID
+    // );
+    // console.log(updatedTerritories);
+
+    // // Place additional troops in a territory
+    // const placeTx = await deployerRisk.placeTroops(
+    //   gameID,
+    //   fromTerritory,
+    //   deployerInstance.encrypt(2)
+    // );
+    // await placeTx.wait();
+
+    // const finalTerritories = await returnTerritories(
+    //   deployerInstance,
+    //   deployerRisk,
+    //   gameID
+    // );
+    // console.log(finalTerritories);
+
+    // assert(
+    //   finalTerritories.some((t) => t.id === fromTerritory && t.troops === 3)
+    // );
   });
 });
 function sleep(ms: number) {
