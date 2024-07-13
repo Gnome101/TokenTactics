@@ -17,11 +17,11 @@ module.exports = async function ({
   const { deployer } = await getNamedAccounts();
   log("------------------------------------------------------------");
   let args = [] as any[];
-  const Test = await deploy("EncryptedERC20", {
+  const RiskGame = await deploy("RiskGame", {
     from: deployer,
     args: args,
     log: true,
   });
 };
 
-module.exports.tags = ["all", "EncryptedERC20"];
+module.exports.tags = ["all", "RiskGame"];
