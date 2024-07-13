@@ -51,10 +51,7 @@ describe("System test", function () {
       encryptedAmount
     );
     await transaction.wait();
-    console.log(EncryptedERC20.target);
-    const token = instance.getTokenSignature(
-      EncryptedERC20.target.toString()
-    ) || {
+    const token = instance.getPublicKey(EncryptedERC20.target.toString()) || {
       signature: "",
       publicKey: "",
     };
@@ -69,7 +66,7 @@ describe("System test", function () {
       EncryptedERC20.target.toString(),
       encryptedBalance
     );
-    console.log(encryptedBalance);
+    console.log(encryptedBalance, balance);
     expect(balance).to.equal(1000);
   });
 });

@@ -21,7 +21,6 @@ export const createInstances = async (
 
     const network = await provider.getNetwork();
     chainId = +network.chainId.toString(); // Need to be a number
-    console.log("info", network, chainId);
     // Get blockchain public key
     const ret = await provider.call({
       to: "0x000000000000000000000000000000000000005d",
@@ -50,7 +49,6 @@ const generateToken = async (
   });
 
   // Use TypedDataEncoder for signing
-  console.log(account);
   const signature = await account.signTypedData(
     generatedToken.eip712.domain,
     { Reencrypt: generatedToken.eip712.types.Reencrypt }, // Need to remove EIP712Domain from types

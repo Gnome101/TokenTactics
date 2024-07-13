@@ -28,6 +28,12 @@ contract EncryptedERC20 is EIP712WithModifier {
         contractOwner = msg.sender;
     }
 
+    uint32 public randomX;
+
+    function getRandom() public {
+        randomX = TFHE.decrypt(TFHE.randEuint32());
+    }
+
     // Sets the balance of the owner to the given encrypted balance.
     function mint(bytes calldata encryptedAmount) public onlyContractOwner {
         euint32 amount = TFHE.asEuint32(encryptedAmount);
