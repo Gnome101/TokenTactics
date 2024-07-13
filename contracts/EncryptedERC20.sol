@@ -7,6 +7,8 @@ import "fhevm/abstracts/EIP712WithModifier.sol";
 import "fhevm/lib/TFHE.sol";
 
 contract EncryptedERC20 is EIP712WithModifier {
+    using TFHE for uint256;
+
     euint32 private totalSupply;
     string public constant name = "Confidential USD";
     string public constant symbol = "CUSD";
@@ -32,6 +34,36 @@ contract EncryptedERC20 is EIP712WithModifier {
 
     function getRandom() public {
         randomX = TFHE.decrypt(TFHE.randEuint32());
+    }
+
+    function popCount(euint32 x) internal pure returns (euint32 c) {
+        //https://github.com/Vectorized/solady/blob/main/src/utils/LibBit.sol - inspired by
+
+        euint32 max = TFHE.not(TFHE.asEuint32(0));
+        ebool isMax = TFHE.eq(x, max);
+        x = TFHE.sub(x, TFHE.and(TFHE.shr(x, 1), TFHE.div(max, 3)));
+        x = TFHE.add(
+            TFHE.and(x, TFHE.div(max, 5)),
+            TFHE.and(TFHE.shr(x, 2), TFHE.div(max, 5))
+        );
+        x = TFHE.and(TFHE.add(x, TFHE.shr(x, 4)), TFHE.div(max, 17));
+        c = TFHE.or(
+            TFHE.shl(TFHE.asEuint32(isMax), 8),
+            TFHE.shr(TFHE.mul(x, TFHE.div(max, 255)), 248)
+        );
+    }
+
+    function popCountTest(uint256 a) public view returns (uint256) {
+        euint32 test = a.asEuint32();
+        return TFHE.decrypt(popCount(test));
+    }
+
+    function countTerritories(
+        euint32[2] memory bitmap
+    ) internal pure returns (euint32 c) {
+        euint32 count1 = popCount(bitmap[0]);
+        euint32 count2 = popCount(bitmap[1]);
+        c = TFHE.add(count1, count2);
     }
 
     // Sets the balance of the owner to the given encrypted balance.

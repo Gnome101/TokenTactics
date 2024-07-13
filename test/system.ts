@@ -45,7 +45,6 @@ describe("System test", function () {
   it("all contracts are launched", async () => {
     const encryptedAmount = instance.encrypt32(1000);
     // const tx = await EncryptedERC20.mint(encryptedAmount);
-
     const transaction = await createTransaction(
       EncryptedERC20.mint,
       encryptedAmount
@@ -55,12 +54,10 @@ describe("System test", function () {
       signature: "",
       publicKey: "",
     };
-
     const encryptedBalance = await EncryptedERC20.balanceOf(
       token.publicKey,
       token.signature
     );
-
     // Decrypt the balance
     const balance = instance.decrypt(
       EncryptedERC20.target.toString(),
