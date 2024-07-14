@@ -26,55 +26,69 @@ contract RiskGame is EIP712WithModifier {
     address public contractOwner;
 
     mapping(euint32 => euint32[]) private neighborsMap;
- function toEuint32Array(uint256[6] memory input) internal pure returns (euint32[] memory output) {
+function toEuint32Array(uint256[6] memory input) internal pure returns (euint32[] memory) {
+        uint256 count = 0;
         for (uint256 i = 0; i < 6; i++) {
-            output[i] = input[i].asEuint32();
+            if (input[i] != 0) count++;
         }
+
+        euint32[] memory output = new euint32[](count);
+        uint256 j = 0;
+        for (uint256 i = 0; i < 6; i++) {
+            if (input[i] != 0) {
+                output[j] = input[i].asEuint32();
+                j++;
+            }
+        }
+
+        return output;
     }
+
+
     constructor() EIP712WithModifier("Authorization token", "1") {
         contractOwner = msg.sender;
-        neighborsMap[euint32.wrap(0)] = toEuint32Array([uint256(2), 3, 26, 0, 0, 0]);
-        neighborsMap[euint32.wrap(1)] = toEuint32Array([uint256(1), 3, 4, 13, 0, 0]);
-        neighborsMap[euint32.wrap(2)] = toEuint32Array([uint256(1), 2, 4, 6, 0, 0]);
-        neighborsMap[euint32.wrap(3)] = toEuint32Array([uint256(2), 3, 6, 7, 5, 13]);
-        neighborsMap[euint32.wrap(4)] = toEuint32Array([uint256(4), 7, 13, 0, 0, 0]);
-        neighborsMap[euint32.wrap(5)] = toEuint32Array([uint256(3), 4, 7, 8, 0, 0]);
-        neighborsMap[euint32.wrap(6)] = toEuint32Array([uint256(3), 4, 5, 6, 8, 0]);
-        neighborsMap[euint32.wrap(7)] = toEuint32Array([uint256(6), 7, 9, 0, 0, 0]);
-        neighborsMap[euint32.wrap(8)] = toEuint32Array([uint256(8), 10, 11, 0, 0, 0]);
-        neighborsMap[euint32.wrap(9)] = toEuint32Array([uint256(9), 11, 12, 0, 0, 0]);
-        neighborsMap[euint32.wrap(10)] = toEuint32Array([uint256(9), 10, 12, 0, 0, 0]);
-        neighborsMap[euint32.wrap(11)] = toEuint32Array([uint256(10), 11, 0, 0, 0, 0]);
-        neighborsMap[euint32.wrap(12)] = toEuint32Array([uint256(2), 4, 5, 14, 0, 0]);
-        neighborsMap[euint32.wrap(13)] = toEuint32Array([uint256(13), 17, 15, 0, 0, 0]);
-        neighborsMap[euint32.wrap(14)] = toEuint32Array([uint256(14), 17, 19, 16, 0, 0]);
-        neighborsMap[euint32.wrap(15)] = toEuint32Array([uint256(15), 19, 20, 21, 22, 23]);
-        neighborsMap[euint32.wrap(16)] = toEuint32Array([uint256(15), 19, 18, 0, 0, 0]);
-        neighborsMap[euint32.wrap(17)] = toEuint32Array([uint256(17), 19, 20, 33, 0, 0]);
-        neighborsMap[euint32.wrap(18)] = toEuint32Array([uint256(15), 17, 18, 20, 16, 0]);
-        neighborsMap[euint32.wrap(19)] = toEuint32Array([uint256(18), 19, 16, 21, 34, 0]);
-        neighborsMap[euint32.wrap(20)] = toEuint32Array([uint256(16), 20, 34, 29, 0, 0]);
-        neighborsMap[euint32.wrap(21)] = toEuint32Array([uint256(16), 23, 30, 21, 29, 0]);
-        neighborsMap[euint32.wrap(22)] = toEuint32Array([uint256(16), 22, 24, 0, 0, 0]);
-        neighborsMap[euint32.wrap(23)] = toEuint32Array([uint256(23), 30, 27, 28, 25, 0]);
-        neighborsMap[euint32.wrap(24)] = toEuint32Array([uint256(24), 27, 26, 0, 0, 0]);
-        neighborsMap[euint32.wrap(25)] = toEuint32Array([uint256(25), 1, 31, 0, 0, 0]);
-        neighborsMap[euint32.wrap(26)] = toEuint32Array([uint256(24), 26, 28, 25, 0, 0]);
-        neighborsMap[euint32.wrap(27)] = toEuint32Array([uint256(30), 31, 0, 0, 0, 0]);
-        neighborsMap[euint32.wrap(28)] = toEuint32Array([uint256(21), 22, 30, 40, 0, 0]);
-        neighborsMap[euint32.wrap(29)] = toEuint32Array([uint256(22), 28, 29, 40, 0, 0]);
-        neighborsMap[euint32.wrap(30)] = toEuint32Array([uint256(26), 28, 0, 0, 0, 0]);
-        neighborsMap[euint32.wrap(31)] = toEuint32Array([uint256(18), 33, 34, 35, 0, 0]);
-        neighborsMap[euint32.wrap(32)] = toEuint32Array([uint256(20), 32, 34, 21, 0, 0]);
-        neighborsMap[euint32.wrap(33)] = toEuint32Array([uint256(21), 32, 33, 35, 37, 0]);
-        neighborsMap[euint32.wrap(34)] = toEuint32Array([uint256(32), 34, 36, 0, 0, 0]);
-        neighborsMap[euint32.wrap(35)] = toEuint32Array([uint256(35), 34, 37, 0, 0, 0]);
-        neighborsMap[euint32.wrap(36)] = toEuint32Array([uint256(34), 36, 0, 0, 0, 0]);
-        neighborsMap[euint32.wrap(37)] = toEuint32Array([uint256(29), 30, 39, 0, 0, 0]);
-        neighborsMap[euint32.wrap(38)] = toEuint32Array([uint256(38), 40, 41, 0, 0, 0]);
-        neighborsMap[euint32.wrap(39)] = toEuint32Array([uint256(39), 41, 42, 0, 0, 0]);
-        neighborsMap[euint32.wrap(40)] = toEuint32Array([uint256(39), 40, 42, 0, 0, 0]);
-        neighborsMap[euint32.wrap(41)] = toEuint32Array([uint256(41), 40, 0, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(0)] = toEuint32Array([uint256(2), 3, 26, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(1)] = toEuint32Array([uint256(1), 3, 4, 13, 0, 0]);
+        neighborsMap[TFHE.asEuint32(2)] = toEuint32Array([uint256(1), 2, 4, 6, 0, 0]);
+        neighborsMap[TFHE.asEuint32(3)] = toEuint32Array([uint256(2), 3, 6, 7, 5, 13]);
+        neighborsMap[TFHE.asEuint32(4)] = toEuint32Array([uint256(4), 7, 13, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(5)] = toEuint32Array([uint256(3), 4, 7, 8, 0, 0]);
+        neighborsMap[TFHE.asEuint32(6)] = toEuint32Array([uint256(3), 4, 5, 6, 8, 0]);
+        neighborsMap[TFHE.asEuint32(7)] = toEuint32Array([uint256(6), 7, 9, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(8)] = toEuint32Array([uint256(8), 10, 11, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(9)] = toEuint32Array([uint256(9), 11, 12, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(10)] = toEuint32Array([uint256(9), 10, 12, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(11)] = toEuint32Array([uint256(10), 11, 0, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(12)] = toEuint32Array([uint256(2), 4, 5, 14, 0, 0]);
+        neighborsMap[TFHE.asEuint32(13)] = toEuint32Array([uint256(13), 17, 15, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(14)] = toEuint32Array([uint256(14), 17, 19, 16, 0, 0]);
+        neighborsMap[TFHE.asEuint32(15)] = toEuint32Array([uint256(15), 19, 20, 21, 22, 23]);
+        neighborsMap[TFHE.asEuint32(16)] = toEuint32Array([uint256(15), 19, 18, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(17)] = toEuint32Array([uint256(17), 19, 20, 33, 0, 0]);
+        neighborsMap[TFHE.asEuint32(18)] = toEuint32Array([uint256(15), 17, 18, 20, 16, 0]);
+        neighborsMap[TFHE.asEuint32(19)] = toEuint32Array([uint256(18), 19, 16, 21, 34, 0]);
+        neighborsMap[TFHE.asEuint32(20)] = toEuint32Array([uint256(16), 20, 34, 29, 0, 0]);
+        neighborsMap[TFHE.asEuint32(21)] = toEuint32Array([uint256(16), 23, 30, 21, 29, 0]);
+        neighborsMap[TFHE.asEuint32(22)] = toEuint32Array([uint256(16), 22, 24, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(23)] = toEuint32Array([uint256(23), 30, 27, 28, 25, 0]);
+        neighborsMap[TFHE.asEuint32(24)] = toEuint32Array([uint256(24), 27, 26, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(25)] = toEuint32Array([uint256(25), 1, 31, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(26)] = toEuint32Array([uint256(24), 26, 28, 25, 0, 0]);
+        neighborsMap[TFHE.asEuint32(27)] = toEuint32Array([uint256(30), 31, 0, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(28)] = toEuint32Array([uint256(21), 22, 30, 40, 0, 0]);
+        neighborsMap[TFHE.asEuint32(29)] = toEuint32Array([uint256(22), 28, 29, 40, 0, 0]);
+        neighborsMap[TFHE.asEuint32(30)] = toEuint32Array([uint256(26), 28, 0, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(31)] = toEuint32Array([uint256(18), 33, 34, 35, 0, 0]);
+        neighborsMap[TFHE.asEuint32(32)] = toEuint32Array([uint256(20), 32, 34, 21, 0, 0]);
+        neighborsMap[TFHE.asEuint32(33)] = toEuint32Array([uint256(21), 32, 33, 35, 37, 0]);
+        neighborsMap[TFHE.asEuint32(34)] = toEuint32Array([uint256(32), 34, 36, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(35)] = toEuint32Array([uint256(35), 34, 37, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(36)] = toEuint32Array([uint256(34), 36, 0, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(37)] = toEuint32Array([uint256(29), 30, 39, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(38)] = toEuint32Array([uint256(38), 40, 41, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(39)] = toEuint32Array([uint256(39), 41, 42, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(40)] = toEuint32Array([uint256(39), 40, 42, 0, 0, 0]);
+        neighborsMap[TFHE.asEuint32(41)] = toEuint32Array([uint256(41), 40, 0, 0, 0, 0]);
 
     }
 
@@ -183,15 +197,7 @@ contract RiskGame is EIP712WithModifier {
         // Remove the selected territory from the unassignedTerritories array
         unassignedTerritories[randIndex] = unassignedTerritories[counter - 1];
         counter--;
-    }
-    // for (uint256 i = 0; i < playerCount ; i++) {
-    //     for (uint j = 5 * i; j < 5 * (i + 1); j++) {
-    //         // Assign the territory to the player and place one troop there
-    //     activeGame.territoryInfo[j].troopsHere = TFHE.asEuint32(1);
-    //     activeGame.territoryOwners[j] = TFHE.add(i.asEuint8(),1);
-    //     }
-        
-    // }
+    }  
 }
 
 
@@ -228,13 +234,13 @@ contract RiskGame is EIP712WithModifier {
         GameState storage game = games[gameID];
         euint32 from = TFHE.asEuint32(fromData);
         euint32 to = TFHE.asEuint32(toData);
+        euint32 amount = TFHE.asEuint32(amountData);
 
         Territory storage source = game.territoryInfo[from];
 
-        TFHE.optReq(TFHE.gt(1, source.troopsHere));
-         euint32 amount = TFHE.asEuint32(amountData);
+    //     TFHE.optReq(TFHE.gt(1, source.troopsHere));
  
-       preformChecks(false,game,amount,TFHE.sub(source.troopsHere, 1),from,to);
+    //    preformChecks(false,game,amount,TFHE.sub(source.troopsHere, 1),from,to);
 
        removeTroopsHere(source, amount);
        addTroopsHere(game.territoryInfo[to], amount);
@@ -282,6 +288,20 @@ function preformChecks(bool attack,GameState storage game,euint32 amount, euint3
     function settleMovement() internal {
 
     }
+    function deployTroops(uint256 gameID,bytes calldata locationData,
+        bytes calldata amountData) public {
+        GameState storage game = games[gameID];
+        euint32 location = TFHE.asEuint32(locationData);
+        euint32 amount = TFHE.asEuint32(amountData);
+
+        Territory storage locationInfo = game.territoryInfo[location];
+        Player storage player = game.playerInfo[msg.sender];
+        TFHE.optReq(TFHE.ge(player.totalTroops,amount)); 
+        addTroopsHere(locationInfo,amount);
+        player.totalTroops = TFHE.sub(player.totalTroops, amount);
+        TFHE.optReq((playerOwnsTerritory(player, location, game.gameID)));
+
+    }
     function addTroopsHere(Territory storage target, euint32 amount) internal {
         target.troopsHere = TFHE.add(target.troopsHere, amount);
     }
@@ -308,7 +328,7 @@ function preformChecks(bool attack,GameState storage game,euint32 amount, euint3
     function useCard(
         uint256 gameID,
         uint32 cardToUse,
-bytes calldata territoryData
+    bytes calldata territoryData
     ) public {
         GameState storage game = games[gameID];
         Player storage player = game.playerInfo[msg.sender];
@@ -557,13 +577,14 @@ bytes calldata territoryData
 function canPlayerLook(GameState storage game,euint32 territoryID,Player storage player) internal view returns(ebool){
             require(TFHE.isInitialized(player.index), "Must be real");
         return TFHE.or(game.intel[territoryID][player.playerAddress],TFHE.or(TFHE.eq(game.territoryOwners[territoryID], player.index),checkNeighborOwnership(game,player,territoryID)));
-
 }
+
 function checkNeighborOwnership(
     GameState storage game,
     Player storage player,
     euint32 territoryID
 ) internal view returns (ebool) {
+    TFHE.optReq(TFHE.le(territoryID,42));
     ebool canLook = TFHE.asEbool(false);
     euint32[] memory neighbors = getNeighbors(territoryID);
     require(neighbors.length > 1, "a");
@@ -576,7 +597,7 @@ function checkNeighborOwnership(
 }  
 function getPlayer(uint256 gameID, uint256 index) public view returns(address) {
     GameState storage game = games[gameID];
-    return game.players[index];
+    return game.players[index-1];
 }
 
 function getTerritoryInfo(
