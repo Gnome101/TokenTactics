@@ -51,12 +51,6 @@ This project is configured to work with the Inco testnet. Ensure you have the co
 
 The protocol implements a fog of war mechanic using Fully Homomorphic Encryption (FHE). This feature limits players' visibility to only the territory adjacent to their current position. This adds a layer of strategy and uncertainty to the gameplay, as players must make decisions based on limited information.
 
-## Scripts
-
-Here are some useful scripts you can run:
-
-- `yarn compile`: Compile the smart contracts
-- `yarn hardhat test`: Run the test suite
 
 ## Contributing
 
